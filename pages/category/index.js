@@ -1,0 +1,171 @@
+import { makeStyles } from "@mui/styles";
+import React from "react";
+import MainLayout from "../../layouts/Mainlayouts";
+import {
+  Button,
+  ButtonBase,
+  Grid,
+  Menu,
+  MenuItem,
+  Typography,
+  TextField,
+} from "@mui/material";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import ProductsItem from "../../components/Products/ProductsItem";
+import { useContext } from "react";
+import { GlobalContext } from "../../context";
+import client from "../../api/client";
+import { useEffect } from "react";
+import { useState } from "react";
+// import { TextFields } from "@mui/icons-material";
+const useStyles = makeStyles({
+  root: {
+    padding: 15,
+    ["@media (min-width : 1200px)"]: {
+      padding: 70,
+    },
+  },
+  row: {
+    display: "flex",
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  wrapper: {
+    marginBottom: 30,
+    marginTop: 40,
+    display: "flex",
+    flexWrap: "wrap",
+  },
+  center: {
+    display: "flex",
+    alignItems: "center",
+    marginTop: 30,
+    justifyContent: "center",
+  },
+  button: {
+    height: 40,
+    width: 50,
+    display: "flex",
+    // flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    borderColor: "#000",
+    borderWidth: 0.5,
+    borderStyle: "solid",
+  },
+});
+function Index() {
+  const {
+    cartegoryState: { data },
+  } = useContext(GlobalContext);
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+  const [loading, setLoading] = useState(false);
+  const [products, setProducts] = useState([]);
+  const [id, setId] = useState("");
+  const classes = useStyles();
+  const FetchProductByCategory = async (id = data[0]?.id) => {
+    setLoading(true);
+    if (id)
+      try {
+        const res = (
+          await client.get(`/api/v1/Product/getProductsByCategory/${id}`)
+        ).data;
+        console.log("products", res);
+        setProducts(res.data);
+      } catch (error) {
+        console.log("error fetchin product by id", error.response);
+      }
+    setLoading(false);
+  };
+  useEffect(() => {
+    if (id === "") {
+      FetchProductByCategory();
+    } else {
+      FetchProductByCategory(id);
+    }
+  }, [id]);
+
+  return (
+    <MainLayout route={"category"} loading={loading}>
+      <div className={classes.root}>
+        <Typography variant="h5" style={{ marginBottom: 40 }} fontWeight={700}>
+          Category
+        </Typography>
+        <div className={classes.row}>
+          <TextField
+            value={id === "" ? data[0]?.id : id}
+            size="small"
+            select
+            sx={{ minWidth: 200 }}
+            onChange={(e) => {
+              setId(e.target.value);
+            }}
+          >
+            {data.map((option) => (
+              <MenuItem key={option.id} value={option.id}>
+                {option.name}
+              </MenuItem>
+            ))}
+          </TextField>
+          <div>
+            <ButtonBase
+              style={{
+                height: 40,
+                width: 50,
+                display: "flex",
+                // flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+                borderColor: "#000",
+                borderWidth: 0.5,
+                borderStyle: "solid",
+                background: "#000",
+                color: "#fff",
+              }}
+            >
+              <Typography>NGN</Typography>
+              {/* <KeyboardArrowDownIcon /> */}
+            </ButtonBase>
+          </div>
+          <Menu
+            id="basic-menu"
+            anchorEl={anchorEl}
+            open={open}
+            onClose={handleClose}
+            MenuListProps={{
+              "aria-labelledby": "basic-button",
+            }}
+          >
+            <MenuItem onClick={handleClose}>2000</MenuItem>
+            <MenuItem onClick={handleClose}>4000</MenuItem>
+            <MenuItem onClick={handleClose}>6000</MenuItem>
+          </Menu>
+        </div>
+        <div>
+          <div className={classes.wrapper}>
+            <Grid container spacing={2}>
+              {products.map((cur) => (
+                <Grid item key={cur} sm={6} xs={6} md={2.4}>
+                  <ProductsItem {...cur} />
+                </Grid>
+              ))}
+            </Grid>
+          </div>
+          {/* <div className={classes.center}>
+            <Button variant="outlined">View More</Button>
+          </div> */}
+        </div>
+      </div>
+    </MainLayout>
+  );
+}
+
+export default Index;
