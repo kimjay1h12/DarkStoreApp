@@ -3,8 +3,7 @@ import MiniDrawer from "../../../../layouts/Drawer";
 import { makeStyles } from "@mui/styles";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { CKEditor } from "@ckeditor/ckeditor5-react";
-import Editor from "ckeditor5-custom-build";
+
 import {
   Typography,
   Grid,
@@ -124,9 +123,7 @@ const colors = ['Red', 'Blue', 'Green', 'Yellow',"Black"];
     }
   };
 
-  const handleApplyColors = () => {
-    onSelectColors(selectedColors);
-  };
+
   const classes = useStyles();
   const { cartegoryState, collectionsState, productDispatch } =
     useContext(GlobalContext);
